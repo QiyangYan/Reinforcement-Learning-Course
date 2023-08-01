@@ -1,7 +1,8 @@
 '''
-This is policy gradient with baseline and temporal causality.
-Almost the same as the reinforce algorithm but with an extra baseline,
-introducing advantage function. This requires a bit more modification towards the net (two heads),
+This is policy gradient with baseline and temporal causality and actor-critic.
+Almost the same as the reinforce algorithm but with an extra baseline,introducing advantage function.
+As it's actor-critic, it uses network to predict baseline and Gt
+This requires a bit more modification towards the net (two heads),
 and something shown in the "key part of the algorithm"
 '''
 
@@ -157,11 +158,16 @@ for i_episode in count(1):
     prev_x = None
     for t in range(10000):
         # if render: env.render()
-        cur_x = prepro(state)
+        cur_x = prepro(state) # cur_x is current state
         x = cur_x - prev_x if prev_x is not None else np.zeros(D)
         prev_x = cur_x
+        # calculate the difference between the current observation and previous observation
+        # to capture the changes in the environment between consecutive time steps
         action = policy.select_action(x)
         action_env = action + 2
+        # 2 is an offset that matches calculated action with action from environment
+        # Example: 0 -> 2 means action 2 move up
+        # action 1: static, action 2: move up, action 3: move down
         state, reward, done, _, _ = env.step(action_env)
         reward_sum += reward
         policy.rewards.append(reward)

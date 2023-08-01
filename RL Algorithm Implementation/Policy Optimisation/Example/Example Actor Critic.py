@@ -68,6 +68,7 @@ class AC(nn.Module):
         m = Categorical(probs)
         action = m.sample()
         self.saved_log_probs[-1].append((m.log_prob(action), state_value))
+        # self.saved_log_probs[-1]: This part accesses the last item (the most recent episode) in the self.saved_log_probs list.
         return action
 
 
@@ -77,23 +78,33 @@ def finish_episode():
     value_loss = []
     rewards = []
 
+    ''' Key part of the algorithm '''
     for episode_id, episode_reward_list in enumerate(policy.rewards):
-        for i, r in enumerate(episode_reward_list):
+        for i, r in enumerate(episode_reward_list): # i is the index of the last time step in the episode
+            # If it's the last time step, the return R is set to the immediate reward r
             if i == len(episode_reward_list) - 1:
-                R = torch.scalar_tensor(r)
+                R = torch.scalar_tensor(r) # convert r into a scalar tensor
             else:
                 R = r + args.gamma * policy.saved_log_probs[episode_id][i + 1][1]
             if is_cuda:
                 R = R.cuda()
-            rewards.append(R)
+            rewards.append(R)  # discounted R
 
     flatten_log_probs = [sample for episode in policy.saved_log_probs for sample in episode]
     assert len(flatten_log_probs) == len(rewards)
+    #  If the lengths are not equal, the assert statement raises an AssertionError
+
     for (log_prob, value), reward in zip(flatten_log_probs, rewards):
         advantage = reward - value  # A(s,a) = r + gamma V(s_t+1) - V(s_t)
+        # print(advantage): tensor([[0.0179]], grad_fn=<SubBackward0>)
         advantage = advantage.detach()
+        # print(advantage): tensor([[0.0179]])
         policy_loss.append(- log_prob * advantage)  # policy gradient
         value_loss.append(F.smooth_l1_loss(value.reshape(-1), reward.reshape(-1)))  # value function approximation
+        # flatten the value tensor into a 1-dimensional tensor (vector).
+        # This term helps in training the value function to better approximate the expected cumulative reward from each state.
+    ''''''
+
     optimizer.zero_grad()
     policy_loss = torch.stack(policy_loss).sum()
     value_loss = torch.stack(value_loss).sum()
@@ -145,6 +156,7 @@ for i_episode in count(1):
     prev_x = None
     policy.rewards.append([])  # record rewards separately for each episode
     policy.saved_log_probs.append([])
+
     for t in range(10000):
         cur_x = prepro(state)
         x = cur_x - prev_x if prev_x is not None else np.zeros(D)
@@ -153,8 +165,8 @@ for i_episode in count(1):
         action_env = action + 2
         state, reward, done, _, _ = env.step(action_env)
         reward_sum += reward
-
         policy.rewards[-1].append(reward)
+
         if done:
             # tracking log
             running_reward = reward_sum if running_reward is None else running_reward * 0.99 + reward_sum * 0.01
