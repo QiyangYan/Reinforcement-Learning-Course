@@ -1,5 +1,7 @@
 '''
 This is policy gradient with baseline and temporal causality and actor-critic.
+Advantage Actor-Critic
+
 Almost the same as the reinforce algorithm but with an extra baseline,introducing advantage function.
 As it's actor-critic, it uses network to predict baseline and Gt
 This requires a bit more modification towards the net (two heads),
