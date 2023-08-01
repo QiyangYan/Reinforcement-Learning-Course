@@ -1,4 +1,4 @@
-# Reinforcement-Learning-Course
+# Reinforcement-Learning-Intro
 
 This repository serves as a comprehensive record of my self-learning journey in learning and implementing various reinforcement learning algorithms. It documents the resources I utilised and the algorithms I have implemented. Please note that this repository is a work in progress, and I will continue to update it as I progress further in my reinforcement learning journey. Feel free to explore the code and resources here, and I welcome any feedback or suggestions!
 
