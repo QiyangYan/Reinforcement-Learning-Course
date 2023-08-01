@@ -1,6 +1,6 @@
 # Reinforcement-Learning-Course
 
-This repository serves as a comprehensive record of my self-learning journey in learning and implementing various reinforcement learning algorithms. It documents the resources I utilized and the algorithms I have implemented.
+This repository serves as a comprehensive record of my self-learning journey in learning and implementing various reinforcement learning algorithms. It documents the resources I utilised and the algorithms I have implemented. Please note that this repository is a work in progress, and I will continue to update it as I progress further in my reinforcement learning journey. Feel free to explore the code and resources here, and I welcome any feedback or suggestions!
 
 ### Learning Resources
 
@@ -12,8 +12,5 @@ Throughout this course, I have relied on the following learning resources:
 
 ### Implemented Algorithms
 
-As part of my learning process, I have implemented the following reinforcement learning algorithms:
+As part of my learning process, I have also included the reinforcement learning algorithms I implemented under the folder: RL Practical
 
-[Add the list of algorithms you have implemented here]
-
-Please note that this repository is a work in progress, and I will continue to update it as I progress further in my reinforcement learning journey. Feel free to explore the code and resources here, and I welcome any feedback or suggestions!
