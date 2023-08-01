@@ -1,3 +1,10 @@
+'''
+This is policy gradient with baseline and temporal causality.
+Almost the same as the reinforce algorithm but with an extra baseline,
+introducing advantage function. This requires a bit more modification towards the net (two heads),
+and something shown in the "key part of the algorithm"
+'''
+
 import os
 import argparse
 import gym
@@ -18,18 +25,31 @@ print(mps)
 
 
 def prepro(I):
-    """ prepro 210x160x3 into 6400 """
-    I = I[35:195]
-    I = I[::2, ::2, 0]
+    """ prepro = pre processing
+    prepro 210x160x3 into 6400
+    takes an input image I of shape 210x160x3 (height x width x channels)
+    and preprocesses it into a 1D array of length 6400
+    """
+    I = I[35:195]  # crop the image
+    # It keeps rows from index 35 to 194 (total of 195-35=160 rows) and keeps all the columns and channels.
+    # This cropping is typically done to focus on the main game area, removing the score and other irrelevant parts of the image.
+    I = I[::2, ::2, 0] # downsample the cropped image
+    # It takes every second row and every second column, and only keeps the first channel (channel 0).
+    # reduces the resolution of the image, which helps in reducing the computational cost and focusing on relevant information.
     I[I == 144] = 0
     I[I == 109] = 0
+    # Replace all the pixels with R-value 144 and 109 (RGB values in the original image) with 0.
+    #  filter out specific colors or elements from the image that are not essential for the agent's decision-making process.
     I[I != 0 ] = 1
+    # Set all the remaining non-zero pixels in the downsampled image to 1
+    # converts the preprocessed image into a binary image
     return I.astype(np.float64).ravel()
+
 
 class PGbaseline(nn.Module):
     def __init__(self, num_actions=2):
         super(PGbaseline, self).__init__()
-        self.affine1 = nn.Linear(6400, 200)
+        self.affine1 = nn.Linear(6400, 200)  # preprocessing gives 1D array with length 6400
         self.action_head = nn.Linear(200, num_actions) # action 1: static, action 2: move up, action 3: move down
         self.value_head = nn.Linear(200, 1)
 
@@ -43,33 +63,42 @@ class PGbaseline(nn.Module):
         state_values = self.value_head(x)
         return F.softmax(action_scores, dim=-1), state_values
 
-
     def select_action(self, x):
         x = Variable(torch.from_numpy(x).float().unsqueeze(0))
         if is_mps: x = x.to(mps)
         probs, state_value = self.forward(x)
         m = Categorical(probs)
         action = m.sample()
-
         self.saved_log_probs.append((m.log_prob(action), state_value))
         return action
+
 
 def finish_episode():
     R = 0
     policy_loss = []
     value_loss = []
     rewards = []
+
     for r in policy.rewards[::-1]:
         R = r + args["gamma"] * R
         rewards.insert(0, R)
+
     # turn rewards to pytorch tensor and standardize
     rewards = torch.Tensor(rewards)
     rewards = (rewards - rewards.mean()) / (rewards.std() + 1e-6)
     if is_mps: rewards = rewards.to(mps)
+
+    ''' Key part of the algorithm '''
     for (log_prob, value), reward in zip(policy.saved_log_probs, rewards):
-        advantage = reward - value
+        advantage = reward - value  # baseline is expected return, expected return is value function
         policy_loss.append(- log_prob * advantage)         # policy gradient
-        value_loss.append(F.smooth_l1_loss(value, reward)) # value function approximation
+        value_loss.append(F.smooth_l1_loss(value, reward)) # Calculate target error
+        # value represents the estimated state value for the current state. It is obtained from the value head of the neural network.
+        # reward is the actual reward obtained after performing the action and reaching the next state.
+        # F.smooth_l1_loss(value, reward) computes the smooth L1 loss between the estimated value value and the actual reward reward.
+        # The F.smooth_l1_loss computes the smooth L1 loss between the estimated value value and the actual reward reward.
+        # The smooth L1 loss is less sensitive to outliers and helps in stabilizing the training of the value function.
+
     optimizer.zero_grad()
     policy_loss = torch.stack(policy_loss).sum()
     value_loss = torch.stack(value_loss).sum()
@@ -124,18 +153,19 @@ running_reward = None
 reward_sum = 0
 for i_episode in count(1):
     state = env.reset(seed=args["seed"])
+    state = state[0]
     prev_x = None
     for t in range(10000):
         # if render: env.render()
-        cur_x = prepro(state[0])
+        cur_x = prepro(state)
         x = cur_x - prev_x if prev_x is not None else np.zeros(D)
         prev_x = cur_x
         action = policy.select_action(x)
         action_env = action + 2
         state, reward, done, _, _ = env.step(action_env)
         reward_sum += reward
-
         policy.rewards.append(reward)
+
         if done:
             # tracking log
             running_reward = reward_sum if running_reward is None else running_reward * 0.99 + reward_sum * 0.01
