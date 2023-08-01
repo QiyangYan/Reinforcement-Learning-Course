@@ -1,0 +1,60 @@
+Lecture 5 Policy Optimisation 1
+
+Part 1: Policy Based RL
+在Policy Based强化学习方法下, 我们对策略进行近似表示。此时策略 π 可以被被描述为一个包含参数 Θ 的函数.
+首先就要找到一个可以优化的函数目标 π_Θ(a|s), policy function approximation/policy approximator, 这玩意是个神经网络
+
+我们的目标是优化 Θ，那就得找一个指标衡量 π_Θ(a|s) 的好坏:
+    1. In episodic environement, use start value
+    2. In continuing environment
+        2.1 use average value
+        2.2 average reward per time-step (MDP)
+马尔科夫链的稳态分布是指：如果一直遵循着同样的策略选择动作，则状态分布不变。
+以上这3种表达方式我们之后就统一使用 J(Θ) 来代替了，我们认为，策略越好，目标 J(Θ) 也就应该是越大的，那么我们优化的目标就是，让 J(Θ) 尽量大。
+
+
+Part 2: Policy gradient estimator
+Lecture 5 focuses optimising Policy-based RL with the target function π_Θ(a|s), to find the best Θ
+which outputs a probability distribution of the actions with the learnable policy parameter Θ.
+In comparison, value-based RL returns a certain action with a deterministic policy using greedy.
+Regarding optimization, the goal is to find Θ that maximises policy value J(Θ),
+which includes either differentiable or non-differentiable J(Θ).
+
+* If J(Θ) is differentiable, we could use gradient-based methods with its' derivative:
+    1. gradient ascent
+    2. conjugate gradient
+    3. quasi-newton
+* Whereas, if it's non-differentiable, other derivative-free black-box optimization methods are required:
+    1. Cross-entropy method (CEM)
+    2. Finite Difference
+    3. Evolution algorithm
+
+Policy-gradient (Compute analytically)
+    1. general with likelihood ratios
+    2. 如果 π_Θ(a|s) 这个神经网络是个线性模型,且action值是离散的 + softmax
+    3. 如果action值是连续的, 是 Gaussian Policy
+    4. Policy-gradient for One-step MDPs, use likelihood ratio
+    5. Policy-gradient for Multi-step MDPs
+
+Part 3: Optimisation with policy-gradient
+Problem of policy gradient: Ubiased but very noisy, large variance
+Solution to reduce variance:
+    1. Use temporal causality + discount factor: Gt
+            Ex: Reinforce, A Monte-Carlo Policy-Gradient Method
+    2. Include a baseline: Gt-b(s_t)
+            usually is the expected return, usually obtained using neural network
+            Ex: Vanilla "Policy Gradient Algorithm" with Baseline
+    3. Use Critic: Q_w(s,a) with parameter w
+            Gt is the unbiased but noisy estimate of actual action-value function, instead use critic to estimate
+            Calculate critic uses the value function approximation method
+
+Part 4: Actor-Critic Policy Gradient
+Actor: the policy function approximator used to generate action, with parameter Θ
+Critic: the value function used to evaluate the reward of the action, with parameter w
+
+
+
+
+
+
+

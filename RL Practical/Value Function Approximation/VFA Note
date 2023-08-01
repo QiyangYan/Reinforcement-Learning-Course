@@ -1,0 +1,21 @@
+Why have VFA
+无论是动态规划DP，蒙特卡罗方法MC，还是时序差分TD，使用的状态都是离散的有限个状态集合。
+此时问题的规模比较小，比较容易求解。但是假如我们遇到复杂的状态集合呢？
+甚至很多时候，状态是连续的，那么就算离散化后，集合也很大，此时我们的传统方法，比如Q-Learning，根本无法在内存中维护这么大的一张Q表。　
+之前讲过的强化学习方法都会因为问题的规模太大而无法使用。
+怎么办呢？必须要对问题的建模做修改了，而 “价值函数的近似表示 Value Function Approximation” 就是一个可行的方法。　
+
+Value function Approximation (VFA)
+下面是两个比较常用的可以用来近似value function的几种表达方法
+1. 线性模型表示法: VFA = 状态s(特征向量集合) * 线性参数
+2. 神经网络:
+    a. 状态价值函数: 输入是状态s(特征向量集合)，输出是状态价值
+    b. 动作价值函数: 输入状态s(特征向量集合)和动作a，输出对应的动作价值
+    c. 动作价值函数: 只输入状态s(特征向量集合)，动作集合有多少个动作就有多少个输出
+
+我们通过最小化objective function J(w), 也就是目标value function和approximation的Mean Square Loss
+来找到最优parameter w.
+
+问题: 但我们不知道目标value function, 这个怎么办
+答案: 通过之前的value function prediction的算法MC和TD, 来估计target value function
+
