@@ -12,5 +12,5 @@ Throughout this course, I have relied on the following learning resources:
 
 ### Implemented Algorithms
 
-As part of my learning process, I have also included the reinforcement learning algorithms I implemented under the folder: RL Practical
+As part of my learning process, I have also included the reinforcement learning algorithms I implemented under the folder: **RL Algorithm Implementation**
 
