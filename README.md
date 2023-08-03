@@ -6,7 +6,8 @@ This repository serves as a comprehensive record of my self-learning journey in 
 
 Throughout this course, I have relied on the following learning resources:
 
-1. **Intro to Reinforcement Learning - Bolei Zhou**: This resource provided a solid introduction to the fundamental concepts and principles of reinforcement learning.
+
+1. **Intro to Reinforcement Learning - Bolei Zhou**: This resource provided a solid introduction to the fundamental concepts and principles of reinforcement learning. https://space.bilibili.com/511221970/channel/seriesdetail?sid=764099
 2. **Deep Learning Course - MatchLab-Imperial**: This course offered valuable insights into deep learning techniques, which are often employed in reinforcement learning.
 3. **Reinforcement Learning Course Note**: The file within this repository titled "Reinforcement Learning Course Note" contains additional links and notes that are very useful for understanding reinforcement learning.
 
