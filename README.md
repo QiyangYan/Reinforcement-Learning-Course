@@ -14,4 +14,11 @@ Throughout this course, I have relied on the following learning resources:
 ### Implemented Algorithms
 
 As part of my learning process, I have also included the reinforcement learning algorithms I implemented under the folder: [**RL Algorithm Implementation**](https://github.com/QiyangYan/Reinforcement-Learning-Course/tree/69331b0f11334e63c706416428128ab167460192/RL%20Algorithm%20Implementation)
-
+Including: 
+1. DQN
+2. Reinforce
+3. Advanced Actor Critic
+4. DDPG
+5. DDPG + HER
+6. TD3
+7. SAC
